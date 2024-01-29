@@ -1,4 +1,6 @@
+
 actor class Backend() {
+
   stable var counter = 0;
 
   // Get the current count
@@ -15,4 +17,5 @@ actor class Backend() {
   public func add(n : Nat) : async () {
     counter += n;
   };
+
 };

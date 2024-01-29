@@ -50,3 +50,79 @@ When ready, run `dfx deploy --network ic` to deploy your application to the Inte
 - Reduce the latency of update calls by passing the `--emulator` flag to `dfx start`.
 - Install a Motoko package by running `npx ic-mops add <package-name>`. Here is a [list of available packages](https://mops.one/).
 - Split your frontend and backend console output by running `npm run frontend` and `npm run backend` in separate terminals.
+
+## Modifications
+
+### Add Authentication
+
+```
+import Principal "mo:base/Principal";
+
+...
+
+assert (msg.caller != Principal.fromText("2vxsx-fae"));
+
+public shared(msg) func who_is_calling() : async Text {
+    Principal.toText(msg.caller);
+  
+};
+```
+
+
+### Add Hashmap
+
+```
+import Text "mo:base/Text";
+import HashMap "mo:base/HashMap";
+
+...
+let map = HashMap.HashMap<Text, Text>(100, Text.equal, Text.hash);
+
+
+public func insert(key: Text, value: Text) : async () {
+    map.put(key, value);
+};
+
+public query func get_value_by_key(key: Text) : async ?Text {
+    map.get(key);
+};
+```
+
+### Add HTTP Request Endpoint
+
+```
+import Nat "mo:base/Nat";
+import Text "mo:base/Text";
+
+...
+
+type HeaderField = (Text, Text);
+
+type HttpResponse = {
+    status_code : Nat16;
+    headers : [HeaderField];
+    body : Blob;
+};
+
+type HttpRequest = {
+    method : Text;
+    url : Text;
+    headers : [HeaderField];
+    body : Blob;
+};
+
+public query func http_request(req : HttpRequest) : async HttpResponse {
+
+    {
+      status_code = 200;
+      headers = [( "Content-Type", "text/plain" )];
+      body = Text.encodeUtf8(Nat.toText(counter));
+    }
+ };
+
+```
+
+### Add HTTPS outcalls
+
+https://github.com/dfinity/examples/blob/master/motoko/send_http_get/src/send_http_get_backend/main.mo
+
